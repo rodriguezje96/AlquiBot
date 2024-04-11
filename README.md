@@ -1,6 +1,8 @@
 <em> <h1> #AlquiBot </h1>  </em>
  :construction: Bot de telegram para buscar alquiler :construction:
 
+Envía el comando /start y el bot te guiará con los siguientes pasos
+
 Para que este bot funcione correctamente debe agregarse un archivo config.json que tenga la siguiente estructura 
 
 ```

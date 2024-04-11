@@ -1,0 +1,5 @@
+# Ignorar archivos json
+*.json
+
+# Ignorar la carpeta node_modules
+node_modules/

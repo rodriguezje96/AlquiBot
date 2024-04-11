@@ -30,18 +30,31 @@ bot.on('message', (msg) => {
             // Ejecutar el proceso de scraping con los nuevos parámetros
             scrapeData();
         } else {
-            bot.sendMessage(chatId, 'Revisá lo que mandaste y poné bien el número.');
+            bot.sendMessage(chatId, 'Revisá lo que mandaste, solo entiendo números.');
         }
     } else if (command.startsWith('/setlocation')) {
         const newLocation = command.split(' ')[1];
         if (newLocation) {
             location = newLocation;
             bot.sendMessage(chatId, `Location set to: ${location}`);
-            // Ejecutar el proceso de scraping con los nuevos parámetros
             scrapeData();
-        } else {
+        }
+        else {
             bot.sendMessage(chatId, 'Ese barrio no lo conozco, probá con otro');
         }
+    }
+    else if (command === '/start') {
+        // Envia mensaje de bienvenida y explicación
+        const welcomeMessage = `¡Bienvenido al Bot de Alquileres! \n\n
+Este bot te ayuda a  buscar alquiler de departamentos en Capital Federal. \n
+Para empezar, podés utilizar los siguientes comandos:
+- /setmaxprice [precio]: Decime el máximo de guita que podés gastar, tirate a más por las dudas.
+- /setlocation [barrio]: Si sos platudo y querés mirar por ubicación decime eso directamente. \n\n
+¡Adelante, elegí. Estoy seguro que perderás!`;
+        bot.sendMessage(chatId, welcomeMessage);
+        console.log('salute')
+    } else {
+        bot.sendMessage(chatId,'No te entendí nada, proba con un /start')
     }
 })
 
