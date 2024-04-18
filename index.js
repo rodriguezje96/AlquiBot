@@ -34,7 +34,7 @@ bot.on('message', (msg) => {
         }
     } else if (command.startsWith('/setlocation')) {
         const newLocation = command.split(' ')[1];
-        if (newLocation) {
+        if (isNaN(newLocation)) {
             location = newLocation;
             bot.sendMessage(chatId, `Location set to: ${location}`);
             scrapeData();
