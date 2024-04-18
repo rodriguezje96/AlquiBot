@@ -23,7 +23,8 @@ bot.on('message', (msg) => {
 
     // Procesar comandos de búsqueda
     if (command.startsWith('/setmaxprice')) {
-        const newMaxPrice = parseInt(command.split(' ')[1]);
+        const newMaxPriceString = command.split(' ')[1];
+        const newMaxPrice = parseInt(newMaxPriceString.replace(/\./g, ''));
         if (!isNaN(newMaxPrice)) {
             maxPrice = newMaxPrice;
             bot.sendMessage(chatId, `Max price set to: $${maxPrice}`);
