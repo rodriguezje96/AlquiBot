@@ -95,6 +95,12 @@ function scrapeData() {
                 });
             });
 
+            //Si no encuentra nada mando un mensaje
+            if (opportunities.length === 0) {
+                enviarMensaje('No encontré nada con lo que me pediste, probá con más guita o con otro barrio');
+                return; // Salir de la función si no hay oportunidades
+            }
+
             // Enviar las oportunidades por Telegram
             opportunities.forEach(option => {
                 const message = `
