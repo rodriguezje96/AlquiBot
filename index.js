@@ -21,14 +21,13 @@ bot.on('message', (msg) => {
     const chatId = msg.chat.id;
     const command = msg.text.toLowerCase();
 
-    // Procesar comandos de búsqueda
+    // comandos de busqueda
     if (command.startsWith('/setmaxprice')) {
         const newMaxPriceString = command.split(' ')[1];
         const newMaxPrice = parseInt(newMaxPriceString.replace(/\./g, ''));
         if (!isNaN(newMaxPrice)) {
             maxPrice = newMaxPrice;
             bot.sendMessage(chatId, `Max price set to: $${maxPrice}`);
-            // Ejecutar el proceso de scraping con los nuevos parámetros
             scrapeData();
         } else {
             bot.sendMessage(chatId, 'Revisá lo que mandaste, solo entiendo números.');
@@ -45,7 +44,6 @@ bot.on('message', (msg) => {
         }
     }
     else if (command === '/start') {
-        // Envia mensaje de bienvenida y explicación
         const welcomeMessage = `¡Bienvenido al Bot de Alquileres! \n\n
 Este bot te ayuda a  buscar alquiler de departamentos en Capital Federal. \n
 Para empezar, podés utilizar los siguientes comandos:
@@ -69,12 +67,8 @@ function enviarMensaje(mensaje) {
         });
 }
 
-
-
 //armo el scraper, le digo que atributos mirar y los guardo en un json
 function scrapeData() {
-    const webToScrap = `https://www.argenprop.com/departamentos-o-ph/alquiler/${location}?con-ambiente-balcon&con-permitemascotas&hasta-${maxPrice}-pesos`;
-    // Aquí implementa el código de scraping con los parámetros actuales
     axios.get(webToScrap)
         .then(response => {
             const html = response.data
@@ -95,14 +89,13 @@ function scrapeData() {
                     link
                 });
             });
-
             //Si no encuentra nada mando un mensaje
             if (opportunities.length === 0) {
                 enviarMensaje('No encontré nada con lo que me pediste, probá con más guita o con otro barrio');
-                return; // Salir de la función si no hay oportunidades
+                return;
             }
 
-            // Enviar las oportunidades por Telegram
+            // Se lo mando al chat
             opportunities.forEach(option => {
                 const message = `
             Title: ${option.title}
