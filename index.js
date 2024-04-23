@@ -1,5 +1,4 @@
 const PORT = 8000
-const config = require('./config.json')
 const axios = require('axios');
 const cheerio = require('cheerio');
 const express = require('express');
