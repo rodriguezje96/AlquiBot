@@ -1,22 +1,40 @@
 const PORT = 8000
-const config = require('./config.json')
 const axios = require('axios');
 const cheerio = require('cheerio');
 const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
-
 const app = express()
-const chatId = config.chatId
-const botToken = config.botToken
-const webToScrap = config.webToScrap
+const botToken = "7030374684:AAF3yAFv2rEv-sXP8IfNexfklQJSupsMreQ"
+const webToScrap = "https://www.argenprop.com/departamentos-o-ph/alquiler/capital-federal?con-ambiente-balcon&con-permitemascotas&hasta-600000-pesos"
 const bot = new TelegramBot(botToken, { polling: true })
 const mensajePrueba = 'Hola! Soy el Bot de Alquileres y estoy probando si esto funca'
+
+const activeChatIds = {}
 
 // Parámetros de búsqueda predeterminados
 let maxPrice = 600000;
 let location = 'capital-federal';
 
 // Proceso lo que manda el usuario por el chat
+
+bot.onText(/\/start/, (msg) => {
+    if (bot.onText(/\/start/)) {
+        const chatId = msg.chat.id;
+        activeChatIds[chatId] = true;
+        const welcomeMessage = `¡Bienvenido al Bot de Alquileres! \n\n
+Este bot te ayuda a  buscar alquiler de departamentos en Capital Federal. \n
+Para empezar, podés utilizar los siguientes comandos:
+- /setmaxprice [precio]: Decime el máximo de guita que podés gastar, tirate a más por las dudas.
+- /setlocation [barrio]: Si sos platudo y querés mirar por ubicación decime eso directamente. \n\n
+¡Adelante, elegí. Estoy seguro que perderás!`;
+        bot.sendMessage(chatId, welcomeMessage);
+        console.log('salute')
+    } else {
+        bot.sendMessage(chatId, 'No te entendí nada, proba con un /start')
+    }
+})
+
+
 bot.on('message', (msg) => {
     const chatId = msg.chat.id;
     const command = msg.text.toLowerCase();
@@ -43,18 +61,19 @@ bot.on('message', (msg) => {
             bot.sendMessage(chatId, 'Ese barrio no lo conozco, probá con otro');
         }
     }
-    else if (command === '/start') {
-        const welcomeMessage = `¡Bienvenido al Bot de Alquileres! \n\n
-Este bot te ayuda a  buscar alquiler de departamentos en Capital Federal. \n
-Para empezar, podés utilizar los siguientes comandos:
-- /setmaxprice [precio]: Decime el máximo de guita que podés gastar, tirate a más por las dudas.
-- /setlocation [barrio]: Si sos platudo y querés mirar por ubicación decime eso directamente. \n\n
-¡Adelante, elegí. Estoy seguro que perderás!`;
-        bot.sendMessage(chatId, welcomeMessage);
-        console.log('salute')
-    } else {
-        bot.sendMessage(chatId,'No te entendí nada, proba con un /start')
-    }
+//     else if (command === '/start') {
+//         const welcomeMessage = `¡Bienvenido al Bot de Alquileres! \n\n
+// Este bot te ayuda a  buscar alquiler de departamentos en Capital Federal. \n
+// Para empezar, podés utilizar los siguientes comandos:
+// - /setmaxprice [precio]: Decime el máximo de guita que podés gastar, tirate a más por las dudas.
+// - /setlocation [barrio]: Si sos platudo y querés mirar por ubicación decime eso directamente. \n\n
+// ¡Adelante, elegí. Estoy seguro que perderás!`;
+//         const chatId = msg.chat.id;
+//         bot.sendMessage(chatId, welcomeMessage);
+//         console.log('salute')
+//     } else {
+//         bot.sendMessage(chatId, 'No te entendí nada, proba con un /start')
+//     }
 })
 
 function enviarMensaje(mensaje) {
