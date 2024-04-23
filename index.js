@@ -62,19 +62,19 @@ bot.on('message', (msg) => {
             bot.sendMessage(chatId, 'Ese barrio no lo conozco, probá con otro');
         }
     }
-    else if (command === '/start') {
-        const welcomeMessage = `¡Bienvenido al Bot de Alquileres! \n\n
-Este bot te ayuda a  buscar alquiler de departamentos en Capital Federal. \n
-Para empezar, podés utilizar los siguientes comandos:
-- /setmaxprice [precio]: Decime el máximo de guita que podés gastar, tirate a más por las dudas.
-- /setlocation [barrio]: Si sos platudo y querés mirar por ubicación decime eso directamente. \n\n
-¡Adelante, elegí. Estoy seguro que perderás!`;
-        const chatId = msg.chat.id;
-        bot.sendMessage(chatId, welcomeMessage);
-        console.log('salute')
-    } else {
-        bot.sendMessage(chatId, 'No te entendí nada, proba con un /start')
-    }
+//     else if (command === '/start') {
+//         const welcomeMessage = `¡Bienvenido al Bot de Alquileres! \n\n
+// Este bot te ayuda a  buscar alquiler de departamentos en Capital Federal. \n
+// Para empezar, podés utilizar los siguientes comandos:
+// - /setmaxprice [precio]: Decime el máximo de guita que podés gastar, tirate a más por las dudas.
+// - /setlocation [barrio]: Si sos platudo y querés mirar por ubicación decime eso directamente. \n\n
+// ¡Adelante, elegí. Estoy seguro que perderás!`;
+//         const chatId = msg.chat.id;
+//         bot.sendMessage(chatId, welcomeMessage);
+//         console.log('salute')
+//     } else {
+//         bot.sendMessage(chatId, 'No te entendí nada, proba con un /start')
+//     }
 })
 
 function enviarMensaje(mensaje) {
