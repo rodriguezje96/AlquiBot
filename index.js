@@ -1,38 +1,34 @@
-const PORT = 3000
 const axios = require('axios');
 const cheerio = require('cheerio');
 const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
-const app = express()
-const botToken = "7030374684:AAF3yAFv2rEv-sXP8IfNexfklQJSupsMreQ"
-const webToScrap = "https://www.argenprop.com/departamentos-o-ph/alquiler/capital-federal?con-ambiente-balcon&con-permitemascotas&hasta-600000-pesos"
-const bot = new TelegramBot(botToken, { polling: true })
-const mensajePrueba = 'Hola! Soy el Bot de Alquileres y estoy probando si esto funca'
+const app = express();
+const botToken = "7030374684:AAF3yAFv2rEv-sXP8IfNexfklQJSupsMreQ";
+const webToScrap = "https://www.argenprop.com/departamentos-o-ph/alquiler/capital-federal?con-ambiente-balcon&con-permitemascotas&hasta-600000-pesos";
+const bot = new TelegramBot(botToken, { polling: true });
+const mensajePrueba = 'Hola! Soy el Bot de Alquileres y estoy probando si esto funca';
 
-const activeChatIds = {}
+const activeChatIds = {};
 
 app.post('/webhook', (req, res) => {
     bot.onText(/\/start/, (msg) => {
-        if (bot.onText(/\/start/)) {
-            const chatId = msg.chat.id;
-            activeChatIds[chatId] = true;
-            const welcomeMessage = `¡Bienvenido al Bot de Alquileres! \n\n
-    Este bot te ayuda a  buscar alquiler de departamentos en Capital Federal. \n
-    Para empezar, podés utilizar los siguientes comandos:
-    - /setmaxprice [precio]: Decime el máximo de guita que podés gastar, tirate a más por las dudas.
-    - /setlocation [barrio]: Si sos platudo y querés mirar por ubicación decime eso directamente. \n\n
-    ¡Adelante, elegí. Estoy seguro que perderás!`;
-            bot.sendMessage(chatId, welcomeMessage);
-            console.log('salute')
-        } else {
-            bot.sendMessage(chatId, 'No te entendí nada, proba con un /start')
-        }
-    })
-
+        const chatId = msg.chat.id;
+        activeChatIds[chatId] = true;
+        const welcomeMessage = `¡Bienvenido al Bot de Alquileres! \n\n
+Este bot te ayuda a buscar alquiler de departamentos en Capital Federal. \n
+Para empezar, podés utilizar los siguientes comandos:
+- /setmaxprice [precio]: Decime el máximo de guita que podés gastar, tirate a más por las dudas.
+- /setlocation [barrio]: Si sos platudo y querés mirar por ubicación decime eso directamente. \n\n
+¡Adelante, elegí. Estoy seguro que perderás!`;
+        bot.sendMessage(chatId, welcomeMessage);
+        console.log('Eehh mira quien vino:', chatId);
+    });
 
     bot.on('message', (msg) => {
         const chatId = msg.chat.id;
         const command = msg.text.toLowerCase();
+
+        console.log('Mensaje recibido:', msg.text);
 
         // comandos de busqueda
         if (command.startsWith('/setmaxprice')) {
@@ -40,26 +36,29 @@ app.post('/webhook', (req, res) => {
             const newMaxPrice = parseInt(newMaxPriceString.replace(/\./g, ''));
             if (!isNaN(newMaxPrice)) {
                 maxPrice = newMaxPrice;
-                bot.sendMessage(chatId, `Max price set to: $${maxPrice}`);
-                scrapeData();
+                bot.sendMessage(chatId, `Ok, podés gastar $${maxPrice}`);
+                scrapeData(chatId);
+                console.log('Nuevo precio máximo establecido:', maxPrice);
             } else {
                 bot.sendMessage(chatId, 'Revisá lo que mandaste, solo entiendo números.');
+                console.log('Error al establecer el precio máximo');
             }
         } else if (command.startsWith('/setlocation')) {
             const newLocation = command.split(' ')[1];
             if (isNaN(newLocation)) {
                 location = newLocation;
-                bot.sendMessage(chatId, `Location set to: ${location}`);
-                scrapeData();
+                bot.sendMessage(chatId, `Te queres mudar a ${location}`);
+                scrapeData(chatId);
+                console.log('Nueva ubicación establecida:', location);
             }
             else {
                 bot.sendMessage(chatId, 'Ese barrio no lo conozco, probá con otro');
+                console.log('Error al establecer la ubicación');
             }
         }
+    });
 
-    })
-
-    function enviarMensaje(mensaje) {
+    function enviarMensaje(chatId, mensaje) {
         bot.sendMessage(chatId, mensaje)
             .then(sentMessage => {
                 console.log('Mensaje enviado correctamente:', sentMessage);
@@ -70,12 +69,13 @@ app.post('/webhook', (req, res) => {
     }
 
     //armo el scraper, le digo que atributos mirar y los guardo en un json
-    function scrapeData() {
+    function scrapeData(chatId) {
+        console.log('Scraping data...');
         axios.get(webToScrap)
             .then(response => {
-                const html = response.data
-                const $ = cheerio.load(html)
-                const opportunities = []
+                const html = response.data;
+                const $ = cheerio.load(html);
+                const opportunities = [];
                 $('.listing__item').each(function () {
                     const title = $(this).find('.card__title--primary').text().trim();
                     const price = $(this).find('.card__price').text().trim().replace(/\./g, '');
@@ -93,7 +93,8 @@ app.post('/webhook', (req, res) => {
                 });
                 //Si no encuentra nada mando un mensaje
                 if (opportunities.length === 0) {
-                    enviarMensaje('No encontré nada con lo que me pediste, probá con más guita o con otro barrio');
+                    enviarMensaje(chatId, 'No encontré nada con lo que me pediste, probá con más guita o con otro barrio');
+                    console.log('No se encontraron oportunidades');
                     return;
                 }
 
@@ -105,27 +106,20 @@ app.post('/webhook', (req, res) => {
                 Location: ${option.location}
                 Link: https://www.argenprop.com${option.link}
                 `;
-                    enviarMensaje(message);
+                    enviarMensaje(chatId, message);
+                    console.log('Mensaje enviado:', message);
                 });
-                console.log('Te mandamos la datita')
+                console.log('Te mandamos la datita');
             })
             .catch(error => {
                 console.error('Error al chorear la data', error);
             });
     }
-})
+});
 
 const webhookUrl = 'https://absorbing-silver-boursin.glitch.me/';
 bot.setWebHook(webhookUrl);
 
+const PORT = process.env.PORT || 8000;
 
-
-// Parámetros de búsqueda predeterminados
-let maxPrice = 600000;
-let location = 'capital-federal';
-
-// Proceso lo que manda el usuario por el chat
-
-
-
-app.listen(PORT, () => console.log(`The server is running in PORT ${PORT}`))
+app.listen(PORT, () => console.log(`The server is running in PORT ${PORT}`));
