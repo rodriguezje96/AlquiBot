@@ -120,6 +120,6 @@ Para empezar, podés utilizar los siguientes comandos:
 const webhookUrl = 'https://absorbing-silver-boursin.glitch.me/';
 bot.setWebHook(webhookUrl);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, () => console.log(`The server is running in PORT ${PORT}`));
