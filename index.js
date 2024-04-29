@@ -1,10 +1,11 @@
+require('dotenv').config();
 const PORT = process.env.PORT || 8000;
 const axios = require('axios');
 const cheerio = require('cheerio');
 const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
 const app = express();
-const botToken = "7030374684:AAF3yAFv2rEv-sXP8IfNexfklQJSupsMreQ";
+const botToken = process.env.BOT_TOKEN;
 const webToScrap = "https://www.argenprop.com/departamentos-o-ph/alquiler/capital-federal?con-ambiente-balcon&con-permitemascotas&hasta-600000-pesos";
 const bot = new TelegramBot(botToken, { polling: true });
 
