@@ -10,6 +10,12 @@ dotenv.config();
 const PORT = process.env.PORT || 8000;
 const botToken = process.env.BOT_TOKEN;
 const webToScrap = "https://www.argenprop.com/departamentos-o-ph/alquiler/capital-federal?con-ambiente-balcon&con-permitemascotas&hasta-600000-pesos";
+
+if (!botToken) {
+    console.error("Telegram Bot Token not provided!");
+    process.exit(1);
+}
+
 const bot = new TelegramBot(botToken, { polling: true });
 const app = express();
 
@@ -86,7 +92,6 @@ function scrapeData() {
                     link
                 });
             });
-
             //Si no encuentra nada mando un mensaje
             if (opportunities.length === 0) {
                 Object.keys(activeChatIds).forEach(chatId => {
@@ -109,7 +114,7 @@ function scrapeData() {
             console.log('Te mandamos la datita');
         })
         .catch(error => {
-            console.error('Error al chorear la data:', error);
+            console.error('Error al chorear la data', error);
         });
 }
 
