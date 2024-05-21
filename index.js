@@ -1,36 +1,38 @@
-require('dotenv').config();
-const PORT = process.env.PORT || 8000;
 const axios = require('axios');
 const cheerio = require('cheerio');
 const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
-const app = express();
+const dotenv = require('dotenv');
+
+// Configurar dotenv
+dotenv.config();
+
+const PORT = process.env.PORT || 8000;
 const botToken = process.env.BOT_TOKEN;
 const webToScrap = "https://www.argenprop.com/departamentos-o-ph/alquiler/capital-federal?con-ambiente-balcon&con-permitemascotas&hasta-600000-pesos";
 const bot = new TelegramBot(botToken, { polling: true });
+const app = express();
 
+const mensajePrueba = 'Hola! Soy el Bot de Alquileres y estoy probando si esto funca';
 const activeChatIds = {};
 
-bot.on('message', (msg) => {
+bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
-    const command = msg.text.toLowerCase();
-
-    if (command === '/start') {
-        const welcomeMessage = `¡Bienvenido al Bot de Alquileres! \n\n
-Este bot te ayuda a buscar alquiler de departamentos en Capital Federal. \n
-Para empezar, podés utilizar los siguientes comandos:
-- /setmaxprice [precio]: Decime el máximo de guita que podés gastar, tirate a más por las dudas.
-- /setlocation [barrio]: Si sos platudo y querés mirar por ubicación decime eso directamente. \n\n
-¡Adelante, elegí. Estoy seguro que perderás!`;
-        bot.sendMessage(chatId, welcomeMessage);
-    }
+    activeChatIds[chatId] = true;
+    const welcomeMessage = `¡Bienvenido al Bot de Alquileres! \n\n
+    Este bot te ayuda a buscar alquiler de departamentos en Capital Federal. \n
+    Para empezar, podés utilizar los siguientes comandos:
+    - /setmaxprice [precio]: Decime el máximo de guita que podés gastar, tirate a más por las dudas.
+    - /setlocation [barrio]: Si sos platudo y querés mirar por ubicación decime eso directamente. \n\n
+    ¡Adelante, elegí. Estoy seguro que perderás!`;
+    bot.sendMessage(chatId, welcomeMessage);
+    console.log('Usuario saludado con /start');
 });
 
 bot.on('message', (msg) => {
     const chatId = msg.chat.id;
     const command = msg.text.toLowerCase();
 
-    // comandos de busqueda
     if (command.startsWith('/setmaxprice')) {
         const newMaxPriceString = command.split(' ')[1];
         const newMaxPrice = parseInt(newMaxPriceString.replace(/\./g, ''));
@@ -47,14 +49,13 @@ bot.on('message', (msg) => {
             location = newLocation;
             bot.sendMessage(chatId, `Location set to: ${location}`);
             scrapeData();
-        }
-        else {
-            bot.sendMessage(chatId, 'Ese barrio no lo conozco, probá con otro');
+        } else {
+            bot.sendMessage(chatId, 'Ese barrio no lo conozco, probá con otro.');
         }
     }
 });
 
-function enviarMensaje(mensaje) {
+function enviarMensaje(chatId, mensaje) {
     bot.sendMessage(chatId, mensaje)
         .then(sentMessage => {
             console.log('Mensaje enviado correctamente:', sentMessage);
@@ -63,14 +64,13 @@ function enviarMensaje(mensaje) {
             console.error('Error al enviar el mensaje:', error);
         });
 }
-
 //armo el scraper, le digo que atributos mirar y los guardo en un json
 function scrapeData() {
     axios.get(webToScrap)
         .then(response => {
-            const html = response.data
-            const $ = cheerio.load(html)
-            const opportunities = []
+            const html = response.data;
+            const $ = cheerio.load(html);
+            const opportunities = [];
             $('.listing__item').each(function () {
                 const title = $(this).find('.card__title--primary').text().trim();
                 const price = $(this).find('.card__price').text().trim().replace(/\./g, '');
@@ -86,12 +86,14 @@ function scrapeData() {
                     link
                 });
             });
+
             //Si no encuentra nada mando un mensaje
             if (opportunities.length === 0) {
-                enviarMensaje('No encontré nada con lo que me pediste, probá con más guita o con otro barrio');
+                Object.keys(activeChatIds).forEach(chatId => {
+                    enviarMensaje(chatId, 'No encontré nada con lo que me pediste, probá con más guita o con otro barrio.');
+                });
                 return;
             }
-
             // Se lo mando al chat
             opportunities.forEach(option => {
                 const message = `
@@ -100,13 +102,17 @@ function scrapeData() {
                 Location: ${option.location}
                 Link: https://www.argenprop.com${option.link}
                 `;
-                enviarMensaje(message);
+                Object.keys(activeChatIds).forEach(chatId => {
+                    enviarMensaje(chatId, message);
+                });
             });
-            console.log('Te mandamos la datita')
+            console.log('Te mandamos la datita');
         })
         .catch(error => {
-            console.error('Error al chorear la data', error);
+            console.error('Error al chorear la data:', error);
         });
 }
 
-app.listen(PORT, () => console.log(`The server is running in PORT ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
