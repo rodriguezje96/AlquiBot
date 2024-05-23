@@ -19,7 +19,6 @@ if (!botToken) {
 const bot = new TelegramBot(botToken, { polling: true });
 const app = express();
 
-const mensajePrueba = 'Hola! Soy el Bot de Alquileres y estoy probando si esto funca';
 const activeChatIds = {};
 
 console.log("Bot inicializado correctamente.");
@@ -60,6 +59,8 @@ bot.on('message', (msg) => {
         } else {
             bot.sendMessage(chatId, 'Ese barrio no lo conozco, probá con otro.');
         }
+    } else if (!command.startsWith('/start')) {
+        bot.sendMessage(chatId, 'No reconozco ese comando. Por favor, utilizá /start, /setmaxprice o /setlocation.');
     }
 });
 
