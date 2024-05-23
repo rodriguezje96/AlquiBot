@@ -22,6 +22,8 @@ const app = express();
 const mensajePrueba = 'Hola! Soy el Bot de Alquileres y estoy probando si esto funca';
 const activeChatIds = {};
 
+console.log("Bot inicializado correctamente.");
+
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
     activeChatIds[chatId] = true;
@@ -70,6 +72,7 @@ function enviarMensaje(chatId, mensaje) {
             console.error('Error al enviar el mensaje:', error);
         });
 }
+
 //armo el scraper, le digo que atributos mirar y los guardo en un json
 function scrapeData() {
     axios.get(webToScrap)
