@@ -46,7 +46,7 @@ bot.on('message', (msg) => {
         if (!isNaN(newMaxPrice)) {
             maxPrice = newMaxPrice;
             bot.sendMessage(chatId, `Podes gastar: $${maxPrice}`);
-            scrapeData();
+            scrapeData(chatId); // Pasa el chatId a scrapeData
         } else {
             bot.sendMessage(chatId, 'Revisá lo que mandaste, solo entiendo números.');
         }
@@ -55,7 +55,7 @@ bot.on('message', (msg) => {
         if (isNaN(newLocation)) {
             location = newLocation.toLowerCase(); // Guardar la ubicación en minúsculas
             bot.sendMessage(chatId, `Te queres mudar a: ${location}`);
-            scrapeData();
+            scrapeData(chatId); // Pasa el chatId a scrapeData
         } else {
             bot.sendMessage(chatId, 'Ese barrio no lo conozco, probá con otro.');
         }
@@ -85,7 +85,7 @@ function filtrarOportunidades(opportunities) {
 }
 
 // Armo el scraper, le digo que atributos mirar y los guardo en un JSON
-function scrapeData() {
+function scrapeData(chatId) {
     axios.get(webToScrap)
         .then(response => {
             const html = response.data;
@@ -95,7 +95,7 @@ function scrapeData() {
                 const title = $(this).find('.card__title--primary').text().trim();
                 const price = $(this).find('.card__price').text().trim().replace(/\./g, '').replace(/\$/g, '');
                 const expensas = $(this).find('.card__expenses').text().trim().replace(/\./g, '').replace(/\$/g, '');
-                const location = $(this).find('.card__title--primary').text().trim();
+                const location = $(this).find('.card__title--primary').text().trim(); // Usar la clase correcta para la ubicación
                 const link = $(this).find('a').attr('href');
 
                 opportunities.push({
@@ -111,9 +111,7 @@ function scrapeData() {
 
             // Si no encuentra nada mando un mensaje
             if (filteredOpportunities.length === 0) {
-                Object.keys(activeChatIds).forEach(chatId => {
-                    enviarMensaje(chatId, 'No encontré nada con lo que me pediste, probá con más guita o con otro barrio.');
-                });
+                enviarMensaje(chatId, 'No encontré nada con lo que me pediste, probá con más guita o con otro barrio.');
                 return;
             }
 
@@ -125,9 +123,7 @@ function scrapeData() {
                 Location: ${option.location}
                 Link: https://www.argenprop.com${option.link}
                 `;
-                Object.keys(activeChatIds).forEach(chatId => {
-                    enviarMensaje(chatId, message);
-                });
+                enviarMensaje(chatId, message);
             });
             console.log('Te mandamos la datita');
         })
