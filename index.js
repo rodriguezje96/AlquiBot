@@ -93,10 +93,12 @@ function scrapeData(chatId) {
             const opportunities = [];
             $('.listing__item').each(function () {
                 const title = $(this).find('.card__title--primary').text().trim();
-                const price = $(this).find('.card__price').text().trim().replace(/\./g, '').replace(/\$/g, '');
+                const priceText = $(this).find('.card__price').text().trim().replace(/\./g, '').replace(/\$/g, '');
                 const expensas = $(this).find('.card__expenses').text().trim().replace(/\./g, '').replace(/\$/g, '');
                 const location = $(this).find('.card__title--primary').text().trim(); // Usar la clase correcta para la ubicación
                 const link = $(this).find('a').attr('href');
+
+                const price = parseInt(priceText);
 
                 opportunities.push({
                     title,
