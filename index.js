@@ -77,7 +77,7 @@ function enviarMensaje(chatId, mensaje) {
 // Función para filtrar las oportunidades según el precio máximo y la ubicación
 function filtrarOportunidades(opportunities) {
     return opportunities.filter(option => {
-        const price = parseInt(option.price.replace(/\$/g, ''));
+        const price = option.price;
         const locationMatch = location ? option.location.toLowerCase().includes(location) : true;
         const priceMatch = maxPrice ? price <= maxPrice : true;
         return locationMatch && priceMatch;
